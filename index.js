@@ -5,6 +5,35 @@ server.use(express.json());
 
 const projects = [];
 
+let requests = 0;
+
+//Middleware verifica a existência do ID
+function checkIdExists(req, res, next){
+  let existentId = false;
+  const { id } = req.params
+
+  for(j = 0; j < projects.length; j++){
+    if(projects[j].id == id){
+      existentId = true;
+    }
+  }
+
+  if(!existentId){
+    return res.status(400).json({ error: 'ID is required' });
+  }
+
+  return next();
+}
+
+//Middleware verifica a quantidade de requisições feitas
+server.use((req, res, next) =>{
+  requests++;
+  console.log(`As requisições forem feitas: ${requests}, vezes`);
+
+
+  return next();
+});
+
 //Criar projeto
 server.post('/projects', (req, res)=>{
   const { id } = req.body;  
@@ -23,7 +52,7 @@ server.get('/projects', (req, res) => {
 });
 
 //Editar projeto com id passado por parametro
-server.put('/projects/:id', (req, res) => {
+server.put('/projects/:id', checkIdExists, (req, res) => {
   const { id } = req.params;
   const { title } = req.body;
 
@@ -37,7 +66,7 @@ server.put('/projects/:id', (req, res) => {
 });
 
 //Deletar o projeto com o id passado por parametro
-server.delete('/projects/:id', (req, res) => {
+server.delete('/projects/:id', checkIdExists, (req, res) => {
   const { id } = req.params;
 
   for (i = 0; i < projects.length; i++) {
@@ -50,7 +79,7 @@ server.delete('/projects/:id', (req, res) => {
 });
 
 //Criar task
-server.post('/projects/:id/tasks', (req,res) =>{
+server.post('/projects/:id/tasks', checkIdExists, (req,res) =>{
   const { id } = req.params;
   const { name } = req.body;
 
