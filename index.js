@@ -49,5 +49,19 @@ server.delete('/projects/:id', (req, res) => {
   return res.send();
 });
 
+//Criar task
+server.post('/projects/:id/tasks', (req,res) =>{
+  const { id } = req.params;
+  const { name } = req.body;
+
+  for (i = 0; i < projects.length; i++) {
+    if (id == projects[i].id) {
+      projects[i].tasks.push(name);
+    }
+  }
+
+  return res.json(projects);
+});
+
 
 server.listen(3000);
